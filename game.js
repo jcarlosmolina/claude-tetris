@@ -14,6 +14,7 @@ const COLORS = [
   '#90caf9', // J - pale blue
   '#ffb74d', // L - orange
   '#b0bec5', // Nut - metallic grey
+  '#ffe082', // 1x1 reward - gold
 ];
 
 const PIECES = [
@@ -26,6 +27,7 @@ const PIECES = [
   [[6,0,0],[6,6,6],[0,0,0]],                  // J
   [[0,0,7],[7,7,7],[0,0,0]],                  // L
   [[8,8,8],[8,0,8],[8,8,8]],                  // Nut (tuerca, hueco central)
+  [[9]],                                       // 1x1 (recompensa tras Tetris)
 ];
 
 const LINE_SCORES = [0, 100, 300, 500, 800];
@@ -43,7 +45,7 @@ const overlayScore = document.getElementById('overlay-score');
 const restartBtn = document.getElementById('restart-btn');
 const themeToggleBtn = document.getElementById('theme-toggle');
 
-let board, current, next, score, lines, level, paused, gameOver, lastTime, dropAccum, dropInterval, animId;
+let board, current, next, score, lines, level, paused, gameOver, lastTime, dropAccum, dropInterval, animId, pendingReward;
 
 function applyTheme(light) {
   document.body.classList.toggle('light', light);
@@ -56,10 +58,18 @@ function createBoard() {
   return Array.from({ length: ROWS }, () => new Array(COLS).fill(0));
 }
 
-function randomPiece() {
-  const type = Math.floor(Math.random() * 8) + 1;
+function makePiece(type) {
   const shape = PIECES[type].map(row => [...row]);
   return { type, shape, x: Math.floor(COLS / 2) - Math.floor(shape[0].length / 2), y: 0 };
+}
+
+function randomPiece() {
+  // tipos 1-8 (I, O, T, S, Z, J, L, Nut); el tipo 9 (1x1) solo se da como recompensa
+  return makePiece(Math.floor(Math.random() * 8) + 1);
+}
+
+function rewardPiece() {
+  return makePiece(9);
 }
 
 function collide(shape, ox, oy) {
@@ -114,6 +124,7 @@ function clearLines() {
     }
   }
   if (cleared) {
+    if (cleared === 4) pendingReward = true; // Tetris: la próxima pieza será la 1x1
     lines += cleared;
     score += (LINE_SCORES[cleared] || 0) * level;
     level = Math.floor(lines / 10) + 1;
@@ -153,7 +164,8 @@ function lockPiece() {
 
 function spawn() {
   current = next;
-  next = randomPiece();
+  next = pendingReward ? rewardPiece() : randomPiece();
+  pendingReward = false;
   if (collide(current.shape, current.x, current.y)) {
     endGame();
   }
@@ -274,6 +286,7 @@ function init() {
   level = 1;
   paused = false;
   gameOver = false;
+  pendingReward = false;
   dropInterval = 1000;
   dropAccum = 0;
   lastTime = performance.now();

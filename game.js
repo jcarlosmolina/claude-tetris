@@ -15,6 +15,7 @@ const COLORS = [
   '#ffb74d', // L - orange
   '#b0bec5', // Nut - metallic grey
   '#ffe082', // 1x1 reward - gold
+  '#f06292', // U - pink
 ];
 
 const PIECES = [
@@ -28,6 +29,7 @@ const PIECES = [
   [[0,0,7],[7,7,7],[0,0,0]],                  // L
   [[8,8,8],[8,0,8],[8,8,8]],                  // Nut (tuerca, hueco central)
   [[9]],                                       // 1x1 (recompensa tras Tetris)
+  [[10,0,10],[10,0,10],[10,10,10]],           // U
 ];
 
 const LINE_SCORES = [0, 100, 300, 500, 800];
@@ -64,8 +66,9 @@ function makePiece(type) {
 }
 
 function randomPiece() {
-  // tipos 1-8 (I, O, T, S, Z, J, L, Nut); el tipo 9 (1x1) solo se da como recompensa
-  return makePiece(Math.floor(Math.random() * 8) + 1);
+  // tipos jugables (I, O, T, S, Z, J, L, Nut, U); el tipo 9 (1x1) solo se da como recompensa
+  const TYPES = [1, 2, 3, 4, 5, 6, 7, 8, 10];
+  return makePiece(TYPES[Math.floor(Math.random() * TYPES.length)]);
 }
 
 function rewardPiece() {

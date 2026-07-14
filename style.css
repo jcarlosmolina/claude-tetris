@@ -221,3 +221,107 @@ kbd {
 #restart-btn:hover {
   background: var(--accent-hover);
 }
+
+/* ---- Récords ---- */
+.leaderboard-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text-color);
+  width: 100%;
+  max-width: 100%;
+}
+
+.leaderboard-list li {
+  padding: 2px 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+#overlay-leaderboard {
+  max-width: 260px;
+}
+
+.leaderboard-list .leaderboard-empty {
+  color: var(--label-color);
+  font-style: italic;
+}
+
+.leaderboard-list .highlight {
+  background: var(--accent);
+  color: var(--restart-text);
+  font-weight: 700;
+}
+
+.records-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 11px;
+  color: var(--controls-text);
+}
+
+.reset-btn {
+  margin-top: 4px;
+  background: transparent;
+  color: var(--label-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 11px;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.reset-btn:hover {
+  background: var(--border-color);
+  color: var(--text-color);
+}
+
+.name-entry {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.name-entry.hidden {
+  display: none;
+}
+
+#name-input {
+  background: var(--bg-board);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: var(--text-color);
+  font-size: 13px;
+  width: 140px;
+}
+
+#save-score-btn {
+  background: var(--accent);
+  color: var(--restart-text);
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+#save-score-btn:hover {
+  background: var(--accent-hover);
+}
+
+#overlay-stats {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  color: var(--controls-text);
+}

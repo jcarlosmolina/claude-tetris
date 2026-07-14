@@ -68,8 +68,8 @@ function makePiece(type) {
 }
 
 function randomPiece() {
-  // tipos jugables (I, O, T, S, Z, J, L, Nut, U); el tipo 9 (1x1) solo se da como recompensa
-  const TYPES = [1, 2, 3, 4, 5, 6, 7, 8, 10, 11];
+  // tipos jugables (I, O, T, S, Z, J, L, Nut); el tipo 9 (1x1) solo se da como recompensa; 10 (U) y 11 (Y) desactivados
+  const TYPES = [1, 2, 3, 4, 5, 6, 7, 8];
   return makePiece(TYPES[Math.floor(Math.random() * TYPES.length)]);
 }
 

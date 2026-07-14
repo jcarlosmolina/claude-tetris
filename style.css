@@ -221,3 +221,90 @@ kbd {
 #restart-btn:hover {
   background: var(--accent-hover);
 }
+
+/* ---- Menú de pausa ---- */
+.pause-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: stretch;
+  width: 220px;
+}
+
+.pause-menu.hidden {
+  display: none;
+}
+
+#resume-btn,
+#controls-btn {
+  background: transparent;
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+#resume-btn {
+  background: var(--accent);
+  color: var(--restart-text);
+  border-color: var(--accent);
+}
+
+#resume-btn:hover {
+  background: var(--accent-hover);
+}
+
+#controls-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.controls-panel {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  background: var(--bg-board);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+}
+
+.controls-panel.hidden {
+  display: none;
+}
+
+.controls-panel li {
+  font-size: 12px;
+  color: var(--controls-text);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.level-select-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--label-color);
+  font-weight: 600;
+  text-align: left;
+}
+
+.level-select-label select {
+  background: var(--bg-board);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+}

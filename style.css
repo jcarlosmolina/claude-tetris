@@ -141,6 +141,26 @@ body {
   border-radius: 4px;
 }
 
+#board.skin-neon-bg,
+#next-canvas.skin-neon-bg {
+  background: #000000;
+}
+
+.skin-select {
+  background: var(--bg-board);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.skin-select:hover {
+  background: var(--border-color);
+}
+
 /* ---- Controles ---- */
 .controls ul {
   list-style: none;

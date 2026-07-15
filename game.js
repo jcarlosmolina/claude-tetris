@@ -39,6 +39,90 @@ const LINE_SCORES = [0, 100, 300, 500, 800];
 const HIGHSCORE_KEY = 'tetris_highscores';
 const MAX_HIGHSCORES = 5;
 
+function hexToRgb(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+
+function rgbToHex(r, g, b) {
+  const clamp = v => Math.max(0, Math.min(255, Math.round(v)));
+  return '#' + [r, g, b].map(v => clamp(v).toString(16).padStart(2, '0')).join('');
+}
+
+function mix(hex, target, amount) {
+  const [r1, g1, b1] = hexToRgb(hex);
+  const [r2, g2, b2] = hexToRgb(target);
+  return rgbToHex(r1 + (r2 - r1) * amount, g1 + (g2 - g1) * amount, b1 + (b2 - b1) * amount);
+}
+
+const PASTEL_COLORS = COLORS.map(c => (c ? mix(c, '#ffffff', 0.45) : null));
+const PIXEL_SHADE_COLORS = COLORS.map(c => (c ? mix(c, '#000000', 0.25) : null));
+
+const SKINS = {
+  retro: {
+    renderBlock(context, x, y, colorIndex, size) {
+      const color = COLORS[colorIndex];
+      context.fillStyle = color;
+      context.fillRect(x * size + 1, y * size + 1, size - 2, size - 2);
+      context.fillStyle = 'rgba(255,255,255,0.12)';
+      context.fillRect(x * size + 1, y * size + 1, size - 2, 4);
+    },
+  },
+  neon: {
+    renderBlock(context, x, y, colorIndex, size) {
+      const color = COLORS[colorIndex];
+      context.save();
+      context.shadowColor = color;
+      context.shadowBlur = size * 0.7;
+      context.fillStyle = color;
+      context.fillRect(x * size + 3, y * size + 3, size - 6, size - 6);
+      context.restore();
+      context.strokeStyle = color;
+      context.lineWidth = 1;
+      context.strokeRect(x * size + 2.5, y * size + 2.5, size - 5, size - 5);
+    },
+  },
+  pastel: {
+    renderBlock(context, x, y, colorIndex, size) {
+      const color = PASTEL_COLORS[colorIndex];
+      const px = x * size + 2;
+      const py = y * size + 2;
+      const s = size - 4;
+      const r = Math.min(6, s / 2);
+      context.fillStyle = color;
+      context.beginPath();
+      if (context.roundRect) {
+        context.roundRect(px, py, s, s, r);
+      } else {
+        context.moveTo(px + r, py);
+        context.arcTo(px + s, py, px + s, py + s, r);
+        context.arcTo(px + s, py + s, px, py + s, r);
+        context.arcTo(px, py + s, px, py, r);
+        context.arcTo(px, py, px + s, py, r);
+        context.closePath();
+      }
+      context.fill();
+    },
+  },
+  pixel: {
+    renderBlock(context, x, y, colorIndex, size) {
+      const color = COLORS[colorIndex];
+      const shade = PIXEL_SHADE_COLORS[colorIndex];
+      const px = x * size + 1;
+      const py = y * size + 1;
+      const s = size - 2;
+      context.fillStyle = color;
+      context.fillRect(px, py, s, s);
+      const cells = 4;
+      const cs = s / cells;
+      context.fillStyle = shade;
+      for (let i = 0; i < cells; i++)
+        for (let j = 0; j < cells; j++)
+          if ((i + j) % 2 === 0) context.fillRect(px + i * cs, py + j * cs, cs, cs);
+    },
+  },
+};
+
 const canvas = document.getElementById('board');
 const ctx = canvas.getContext('2d');
 const nextCanvas = document.getElementById('next-canvas');
@@ -66,6 +150,17 @@ const resumeBtn = document.getElementById('resume-btn');
 const controlsBtn = document.getElementById('controls-btn');
 const controlsPanel = document.getElementById('controls-panel');
 const startLevelSelect = document.getElementById('start-level-select');
+const skinSelect = document.getElementById('skin-select');
+
+let activeSkin = 'retro';
+
+function applySkin(name) {
+  activeSkin = SKINS[name] ? name : 'retro';
+  const isNeon = activeSkin === 'neon';
+  canvas.classList.toggle('skin-neon-bg', isNeon);
+  nextCanvas.classList.toggle('skin-neon-bg', isNeon);
+  if (skinSelect) skinSelect.value = activeSkin;
+}
 
 let board, current, next, score, lines, level, paused, gameOver, lastTime, dropAccum, dropInterval, animId, pendingReward, combo, bestComboRun;
 let startLevel = 1;
@@ -276,13 +371,8 @@ function updateHUD() {
 
 function drawBlock(context, x, y, colorIndex, size, alpha) {
   if (!colorIndex) return;
-  const color = COLORS[colorIndex];
   context.globalAlpha = alpha ?? 1;
-  context.fillStyle = color;
-  context.fillRect(x * size + 1, y * size + 1, size - 2, size - 2);
-  // highlight
-  context.fillStyle = 'rgba(255,255,255,0.12)';
-  context.fillRect(x * size + 1, y * size + 1, size - 2, 4);
+  SKINS[activeSkin].renderBlock(context, x, y, colorIndex, size);
   context.globalAlpha = 1;
 }
 
@@ -484,7 +574,17 @@ themeToggleBtn.addEventListener('click', () => {
   drawNext();
 });
 
+if (skinSelect) {
+  skinSelect.addEventListener('change', () => {
+    applySkin(skinSelect.value);
+    localStorage.setItem('tetris_skin', activeSkin);
+    draw();
+    drawNext();
+  });
+}
+
 applyTheme(localStorage.getItem('theme') === 'light');
+applySkin(localStorage.getItem('tetris_skin') || 'retro');
 
 startLevel = parseInt(localStorage.getItem('startLevel'), 10) || 1;
 startLevelSelect.value = String(startLevel);

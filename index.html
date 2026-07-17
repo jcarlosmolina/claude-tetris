@@ -42,6 +42,16 @@
             <li><kbd>P</kbd> pausa</li>
           </ul>
         </div>
+
+        <div class="panel-section">
+          <span class="label">RÉCORDS</span>
+          <ol id="leaderboard-list" class="leaderboard-list"></ol>
+          <div class="best-stats">
+            <span>Mejor combo: <b id="best-combo">0</b></span>
+            <span>Máx. líneas: <b id="best-lines">0</b></span>
+          </div>
+          <button id="reset-records-btn" class="reset-records-btn" type="button">Borrar récords</button>
+        </div>
       </aside>
     </div>
 
@@ -49,6 +59,14 @@
       <div class="overlay-box">
         <p id="overlay-title">GAME OVER</p>
         <p id="overlay-score"></p>
+        <div id="overlay-save" class="overlay-save hidden">
+          <input id="name-input" type="text" maxlength="10" placeholder="Tu nombre" />
+          <button id="save-score-btn" type="button">Guardar</button>
+        </div>
+        <div id="overlay-leaderboard" class="overlay-leaderboard hidden">
+          <span class="label">TOP 5</span>
+          <ol id="overlay-leaderboard-list" class="leaderboard-list"></ol>
+        </div>
         <button id="restart-btn">Reiniciar</button>
       </div>
     </div>

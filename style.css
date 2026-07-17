@@ -80,6 +80,45 @@ body {
   background: var(--border-color);
 }
 
+.skin-select {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 36px;
+  padding: 0 8px;
+  background: var(--bg-board);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-color);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* ---- Skins ---- */
+body.skin-neon {
+  --bg-board: #05050a;
+  --border-color: #1f2a44;
+  --grid-line: #0d1a2b;
+  --accent: #00e5ff;
+  --shadow-color: rgba(0, 229, 255, 0.35);
+}
+
+body.skin-pastel {
+  --bg-board: #fdf6f0;
+  --border-color: #f0d9e8;
+  --grid-line: #f5e6ee;
+  --accent: #ff8fab;
+  --text-color: #5a4a52;
+  --shadow-color: rgba(0, 0, 0, 0.08);
+}
+
+body.skin-pixel {
+  --bg-board: #14141c;
+  --border-color: #3a3a4a;
+  --grid-line: #24242e;
+  --accent: #ffd54f;
+}
+
 .game-title {
   text-align: center;
   font-size: 32px;

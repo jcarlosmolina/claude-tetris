@@ -36,6 +36,15 @@ const PIECES = [
 
 const LINE_SCORES = [0, 100, 300, 500, 800];
 
+const SKIN_COLORS = {
+  retro: COLORS,
+  neon: [null, '#00e5ff', '#fff176', '#e040fb', '#69f0ae', '#ff5252', '#40c4ff', '#ffab40', '#b0bec5', '#fff59d', '#ff4081', '#7c4dff'],
+  pastel: [null, '#a8dadc', '#fff3b0', '#d8bbff', '#b8f2c9', '#ffb3ba', '#bde0fe', '#ffd6a5', '#e0d9d3', '#fdeeb3', '#ffc8dd', '#cdb4db'],
+  pixel: COLORS,
+};
+
+const SKINS = ['retro', 'neon', 'pastel', 'pixel'];
+
 const canvas = document.getElementById('board');
 const ctx = canvas.getContext('2d');
 const nextCanvas = document.getElementById('next-canvas');
@@ -48,14 +57,31 @@ const overlayTitle = document.getElementById('overlay-title');
 const overlayScore = document.getElementById('overlay-score');
 const restartBtn = document.getElementById('restart-btn');
 const themeToggleBtn = document.getElementById('theme-toggle');
+const skinSelect = document.getElementById('skin-select');
 
 let board, current, next, score, lines, level, paused, gameOver, lastTime, dropAccum, dropInterval, animId, pendingReward;
+let skin = 'retro';
 
 function applyTheme(light) {
   document.body.classList.toggle('light', light);
   themeToggleBtn.textContent = light ? '☀️' : '🌙';
   themeToggleBtn.setAttribute('aria-pressed', String(light));
   themeToggleBtn.title = light ? 'Cambiar a modo oscuro' : 'Cambiar a modo claro';
+}
+
+function applySkin(name) {
+  skin = SKINS.includes(name) ? name : 'retro';
+  SKINS.forEach(s => document.body.classList.toggle(`skin-${s}`, s === skin));
+  skinSelect.value = skin;
+}
+
+function shadeColor(hex, percent) {
+  const num = parseInt(hex.slice(1), 16);
+  const clamp = v => Math.max(0, Math.min(255, v));
+  const r = clamp((num >> 16) + Math.round(2.55 * percent));
+  const g = clamp(((num >> 8) & 0xff) + Math.round(2.55 * percent));
+  const b = clamp((num & 0xff) + Math.round(2.55 * percent));
+  return `#${(1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1)}`;
 }
 
 function createBoard() {
@@ -185,14 +211,70 @@ function updateHUD() {
 
 function drawBlock(context, x, y, colorIndex, size, alpha) {
   if (!colorIndex) return;
-  const color = COLORS[colorIndex];
+  const color = (SKIN_COLORS[skin] || COLORS)[colorIndex];
+  context.save();
   context.globalAlpha = alpha ?? 1;
-  context.fillStyle = color;
-  context.fillRect(x * size + 1, y * size + 1, size - 2, size - 2);
-  // highlight
-  context.fillStyle = 'rgba(255,255,255,0.12)';
-  context.fillRect(x * size + 1, y * size + 1, size - 2, 4);
-  context.globalAlpha = 1;
+
+  if (skin === 'neon') {
+    const bx = x * size + 2, by = y * size + 2, bw = size - 4, bh = size - 4;
+    context.shadowColor = color;
+    context.shadowBlur = 12;
+    context.fillStyle = color;
+    context.fillRect(bx, by, bw, bh);
+    context.shadowBlur = 0;
+    context.strokeStyle = 'rgba(255,255,255,0.7)';
+    context.lineWidth = 1;
+    context.strokeRect(bx, by, bw, bh);
+  } else if (skin === 'pastel') {
+    const r = 6;
+    const bx = x * size + 2, by = y * size + 2, bw = size - 4, bh = size - 4;
+    context.fillStyle = color;
+    context.beginPath();
+    context.moveTo(bx + r, by);
+    context.arcTo(bx + bw, by, bx + bw, by + bh, r);
+    context.arcTo(bx + bw, by + bh, bx, by + bh, r);
+    context.arcTo(bx, by + bh, bx, by, r);
+    context.arcTo(bx, by, bx + bw, by, r);
+    context.closePath();
+    context.fill();
+    context.fillStyle = 'rgba(255,255,255,0.35)';
+    context.beginPath();
+    context.moveTo(bx + r, by);
+    context.arcTo(bx + bw, by, bx + bw, by + bh, r);
+    context.lineTo(bx + bw, by + 6);
+    context.lineTo(bx, by + 6);
+    context.arcTo(bx, by, bx + bw, by, r);
+    context.closePath();
+    context.fill();
+  } else if (skin === 'pixel') {
+    const bx = x * size + 1, by = y * size + 1, s = size - 2;
+    context.fillStyle = color;
+    context.fillRect(bx, by, s, s);
+    const dark = shadeColor(color, -25);
+    const light = shadeColor(color, 25);
+    const cell = s / 4;
+    const baseAlpha = alpha ?? 1;
+    for (let i = 0; i < 4; i++) {
+      for (let j = 0; j < 4; j++) {
+        if ((i + j) % 2 === 0) {
+          context.globalAlpha = baseAlpha * 0.3;
+          context.fillStyle = (i === 0 || j === 0) ? light : dark;
+          context.fillRect(bx + i * cell, by + j * cell, cell, cell);
+        }
+      }
+    }
+    context.globalAlpha = baseAlpha;
+    context.strokeStyle = 'rgba(0,0,0,0.5)';
+    context.lineWidth = 1;
+    context.strokeRect(bx + 0.5, by + 0.5, s - 1, s - 1);
+  } else {
+    context.fillStyle = color;
+    context.fillRect(x * size + 1, y * size + 1, size - 2, size - 2);
+    context.fillStyle = 'rgba(255,255,255,0.12)';
+    context.fillRect(x * size + 1, y * size + 1, size - 2, 4);
+  }
+
+  context.restore();
 }
 
 function drawGrid() {
@@ -338,6 +420,14 @@ themeToggleBtn.addEventListener('click', () => {
   drawNext();
 });
 
+skinSelect.addEventListener('change', () => {
+  applySkin(skinSelect.value);
+  localStorage.setItem('skin', skin);
+  draw();
+  drawNext();
+});
+
 applyTheme(localStorage.getItem('theme') === 'light');
+applySkin(localStorage.getItem('skin') || 'retro');
 
 init();
